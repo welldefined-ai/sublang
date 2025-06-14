@@ -1,5 +1,7 @@
 # SubLang: The LLM-Native Way to _Write_ Software
 
+[![Discord Chat](https://img.shields.io/discord/1382712250598690947?logo=discord)](https://discord.gg/Tv4EcTu5YX)
+
 We share the vision that large language models (LLMs) will enable people to build and maintain software using natural language.
 This will dramatically unleash human productivity, making it easier to turn great ideas into reality.
 
