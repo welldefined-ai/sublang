@@ -39,7 +39,7 @@ For example, `permission` must be granted before editing a `label`.
 ### Semantics
 
 Semantics refer to meaningful sequences or patterns of software behavior that define specific features of the system.
-For example, sharing a file may involve updating `file` permission, adding a `collaboration` mapping between the file and the user, and sending a `notification` to the user.
+For example, sharing a file may involve updating file `permission`, adding a `collaborator` mapping between the file and the user, and sending a `notification` to the user.
 These semantic definitions serve as the foundation for test cases and enable automated verification.
 
 ## Join Us
