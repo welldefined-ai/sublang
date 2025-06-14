@@ -13,9 +13,31 @@ However, the current approaches fall short of realizing this vision:
 
 The walls exist because software requirements, design, and implementation speak different languages:
 - requirements are expressed in ambiguous natural language;
-- design is captured in formal representations like UML (Unified Modeling Language); and
+- design is captured in formal notations like UML (Unified Modeling Language); and
 - implementation is written in programming languages.
 
 To overcome these walls, the right approach is to unify requirements, design, and implementation in a well-defined natural language — enabling LLMs to reason across the full software development lifecycle.
 
 > Every program is a well-defined sublanguage.
+
+## Definition
+
+A **well-defined sublanguage** (WDSL, for short) expresses the composition and behavior of software in a controlled form of natural language.
+A WDSL consists of the following three components.
+
+### Term
+
+Terms define the essential concepts of the software, such as users, labels, and thumbs-up.
+These terms form the building blocks of the software structure.
+Additionally, software behavior can be represented as sequences of events or operations, all expressed using these defined terms.
+
+### Syntax
+
+Syntax specifies the constraints governing software behavior.
+For example, `permission` must be granted before editing a `label`.
+
+### Semantics
+
+## Join Us
+- Chat: [https://discord.gg/Tv4EcTu5YX](https://discord.gg/Tv4EcTu5YX)
+- Forum: [https://github.com/welldefined-ai/sublang/discussions](https://github.com/welldefined-ai/sublang/discussions)
