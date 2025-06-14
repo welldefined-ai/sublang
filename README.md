@@ -38,6 +38,10 @@ For example, `permission` must be granted before editing a `label`.
 
 ### Semantics
 
+Semantics refer to meaningful sequences or patterns of software behavior that define specific features of the system.
+For example, sharing a file may involve updating `file` permission, adding a `collaboration` mapping between the file and the user, and sending a `notification` to the user.
+These semantic definitions serve as the foundation for test cases and enable automated verification.
+
 ## Join Us
 - Chat: [https://discord.gg/Tv4EcTu5YX](https://discord.gg/Tv4EcTu5YX)
-- Forum: [https://github.com/welldefined-ai/sublang/discussions](https://github.com/welldefined-ai/sublang/discussions)
+- Forum: [https://github.com/orgs/welldefined-ai/discussions](https://github.com/orgs/welldefined-ai/discussions)
