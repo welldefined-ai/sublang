@@ -52,6 +52,7 @@ def design_specs(state: ChatState) -> Dict[str, Any]:
         
         return {
             "response": response_content,
+            "intent": "DESIGN_SPECS",
             "history": history + [
                 {"role": "user", "content": message},
                 {"role": "assistant", "content": response_content}
@@ -66,6 +67,7 @@ def design_specs(state: ChatState) -> Dict[str, Any]:
         )
         return {
             "response": error_msg,
+            "intent": "DESIGN_SPECS",
             "history": history + [
                 {"role": "user", "content": message},
                 {"role": "assistant", "content": "Error occurred"}

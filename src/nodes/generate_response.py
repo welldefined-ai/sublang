@@ -52,6 +52,7 @@ def generate_response(state: ChatState) -> Dict[str, Any]:
         
         return {
             "response": response_content,
+            "intent": "GENERAL",
             "history": history + [
                 {"role": "user", "content": message},
                 {"role": "assistant", "content": response_content}
@@ -66,6 +67,7 @@ def generate_response(state: ChatState) -> Dict[str, Any]:
         )
         return {
             "response": error_msg,
+            "intent": "GENERAL",
             "history": history + [
                 {"role": "user", "content": message},
                 {"role": "assistant", "content": "Error occurred"}

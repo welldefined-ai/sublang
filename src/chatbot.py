@@ -1,24 +1,83 @@
 """Chatbot graph creation and interaction functions."""
 
 from typing import Dict, List, Optional, Any
+import litellm
+from config import config
 from langgraph.graph import StateGraph, START, END
 from .state import ChatState
-from .nodes import classify_intent, generate_response, design_specs
+from .nodes import generate_response, design_specs
+from .prompt_loader import PromptLoader
+
+# Initialize prompt loader
+prompt_loader = PromptLoader()
+
+# Configure LiteLLM
+litellm.set_verbose = False  # Set to True for debugging
 
 
-def route_to_handler(state: ChatState) -> str:
-    """Route to appropriate handler based on intent.
+def classify_and_route(state: ChatState) -> str:
+    """Classify intent and route to appropriate handler using LLM.
     
     Args:
         state: Current chat state
         
     Returns:
-        Handler name to route to
+        Handler name to route to ("general" or "design")
     """
-    intent = state.get("intent", "GENERAL")
-    if intent == "DESIGN_SPECS":
-        return "design"
-    else:
+    message = state["message"]
+    history = state.get("history", [])
+    
+    # Get the classification prompt
+    system_prompt = prompt_loader.get_prompt("CLASSIFY_INTENT")
+    
+    try:
+        # Prepare context for classification
+        if history:
+            # Get the last assistant response for context
+            last_assistant_response = None
+            for entry in reversed(history):
+                if entry.get("role") == "assistant":
+                    last_assistant_response = entry.get("content", "")
+                    break
+            
+            if last_assistant_response:
+                user_prompt = f"""Previous assistant response: {last_assistant_response}
+
+Current user message: {message}
+
+Based on the previous response and the new user message, is this conversation still about software design?"""
+            else:
+                user_prompt = f"""Current user message: {message}
+
+This is the first message in the conversation. Is this about software design?"""
+        else:
+            user_prompt = f"""Current user message: {message}
+
+This is the first message in the conversation. Is this about software design?"""
+        
+        # Create messages for the LLM
+        messages = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt}
+        ]
+        
+        # Generate classification using LiteLLM
+        response = litellm.completion(
+            messages=messages,
+            **config.get_model_params()
+        )
+        
+        classification_result = response.choices[0].message.content.strip()
+        
+        # Parse the classification result and return route
+        if "DESIGN_SPECS" in classification_result.upper():
+            return "design"
+        else:
+            return "general"
+    
+    except Exception as e:
+        print(f"Error in LLM classification: {e}")
+        # Fallback to general on error
         return "general"
 
 
@@ -31,16 +90,14 @@ def create_chatbot():
     # Create the graph
     graph = StateGraph(ChatState)
     
-    # Add nodes
-    graph.add_node("classify_intent", classify_intent)
+    # Add nodes (no classification node needed)
     graph.add_node("generate_response", generate_response)
     graph.add_node("design_specs", design_specs)
     
-    # Add edges with conditional routing
-    graph.add_edge(START, "classify_intent")
+    # Add conditional edges directly from START
     graph.add_conditional_edges(
-        "classify_intent",
-        route_to_handler,
+        START,
+        classify_and_route,
         {
             "general": "generate_response",
             "design": "design_specs"
