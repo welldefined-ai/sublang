@@ -25,7 +25,7 @@ def generate_response(state: ChatState) -> Dict[str, Any]:
     message = state["message"]
     history = state.get("history", [])
     
-    # Get the general prompt
+    # Get the general prompt (includes README content automatically)
     system_prompt = prompt_loader.get_prompt("GENERAL")
     
     try:

@@ -35,7 +35,7 @@ class PromptLoader:
                 self.prompts[prompt_name] = f.read().strip()
     
     def get_prompt(self, intent: str) -> str:
-        """Get prompt by intent, fallback to general if not found.
+        """Get prompt by intent with dynamic content substitution.
         
         Args:
             intent: Intent name to get prompt for
@@ -43,7 +43,38 @@ class PromptLoader:
         Returns:
             Prompt text for the given intent
         """
-        return self.prompts.get(intent, self.prompts.get('GENERAL', ''))
+        base_prompt = self.prompts.get(intent, self.prompts.get('GENERAL', ''))
+        
+        # For GENERAL intent, substitute README content
+        if intent == 'GENERAL' and '{readme_section}' in base_prompt:
+            readme_content = self._load_readme()
+            if readme_content:
+                formatted_readme = f"""
+## Project Information (Optional Reference)
+The following is information about this project. Use this as context when users ask about the project, but for general questions unrelated to this project, just respond normally.
+
+{readme_content}"""
+            else:
+                formatted_readme = ""
+            
+            return base_prompt.replace('{readme_section}', formatted_readme)
+        
+        return base_prompt
+    
+    def _load_readme(self) -> str:
+        """Load README.md content from project root.
+        
+        Returns:
+            README content or empty string if not found
+        """
+        try:
+            readme_path = Path("README.md")
+            if readme_path.exists():
+                with open(readme_path, 'r', encoding='utf-8') as f:
+                    return f.read().strip()
+        except Exception as e:
+            print(f"Warning: Could not load README.md: {e}")
+        return ""
     
     def reload_prompts(self) -> None:
         """Reload prompts from files (useful for development)."""
