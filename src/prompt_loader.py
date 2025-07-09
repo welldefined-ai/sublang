@@ -50,11 +50,6 @@ class PromptLoader:
         self.prompts.clear()
         self.load_prompts()
 
-# Intent classification keywords
-INTENT_KEYWORDS = {
-    'DESIGN_SPECS': [
-        'design', 'architecture', 'requirements', 'specification', 'specs', 
-        'system design', 'software design', 'api design', 'database design',
-        'plan', 'structure', 'blueprint', 'schema', 'model'
-    ],
-}
+# Note: Intent classification is now handled by LLM instead of keywords
+# The INTENT_KEYWORDS dictionary has been removed as classification is now 
+# performed by the LLM using the classify_intent.txt prompt
