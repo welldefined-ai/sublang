@@ -52,16 +52,9 @@ class PromptLoader:
 
 # Intent classification keywords
 INTENT_KEYWORDS = {
-    'TECHNICAL_SUPPORT': [
-        'error', 'bug', 'troubleshoot', 'fix', 'problem', 'issue'
-    ],
-    'CONCEPT_EXPLANATION': [
-        'what is', 'explain', 'how does', 'definition', 'concept'
-    ],
-    'CODE_REVIEW': [
-        'review', 'check', 'validate', 'analyze', 'feedback'
-    ],
-    'GETTING_STARTED': [
-        'start', 'begin', 'tutorial', 'guide', 'first time'
+    'DESIGN_SPECS': [
+        'design', 'architecture', 'requirements', 'specification', 'specs', 
+        'system design', 'software design', 'api design', 'database design',
+        'plan', 'structure', 'blueprint', 'schema', 'model'
     ],
 }

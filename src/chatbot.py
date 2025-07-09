@@ -3,7 +3,23 @@
 from typing import Dict, List, Optional, Any
 from langgraph.graph import StateGraph, START, END
 from .state import ChatState
-from .nodes import classify_intent, generate_response
+from .nodes import classify_intent, generate_response, design_specs
+
+
+def route_to_handler(state: ChatState) -> str:
+    """Route to appropriate handler based on intent.
+    
+    Args:
+        state: Current chat state
+        
+    Returns:
+        Handler name to route to
+    """
+    intent = state.get("intent", "GENERAL")
+    if intent == "DESIGN_SPECS":
+        return "design"
+    else:
+        return "general"
 
 
 def create_chatbot():
@@ -18,11 +34,20 @@ def create_chatbot():
     # Add nodes
     graph.add_node("classify_intent", classify_intent)
     graph.add_node("generate_response", generate_response)
+    graph.add_node("design_specs", design_specs)
     
-    # Add edges
+    # Add edges with conditional routing
     graph.add_edge(START, "classify_intent")
-    graph.add_edge("classify_intent", "generate_response")
+    graph.add_conditional_edges(
+        "classify_intent",
+        route_to_handler,
+        {
+            "general": "generate_response",
+            "design": "design_specs"
+        }
+    )
     graph.add_edge("generate_response", END)
+    graph.add_edge("design_specs", END)
     
     # Compile the graph
     return graph.compile()
