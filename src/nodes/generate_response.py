@@ -34,9 +34,9 @@ def generate_response(state: ChatState) -> Dict[str, Any]:
             {"role": "system", "content": system_prompt},
         ]
         
-        # Add conversation history
+        # Add conversation history (last 4 messages = 2 rounds of talk)
         if history:
-            for entry in history[-6:]:  # Keep last 6 messages for context
+            for entry in history[-4:]:  # Keep last 4 messages for context
                 messages.append(entry)
         
         # Add current user message
