@@ -38,6 +38,38 @@ def check_api_keys() -> bool:
     return True
 
 
+def get_multiline_input(prompt: str = "You: ") -> str:
+    """Get multi-line input from user. Users can paste multi-line text or type across multiple lines.
+    
+    Input ends when user presses Enter twice on consecutive empty lines, BUT only if those
+    empty lines come at the very end (not in the middle of pasted content).
+    
+    Args:
+        prompt: The prompt to display to the user
+        
+    Returns:
+        The complete multi-line input as a string
+    """
+    print(f"{prompt}(Press Enter twice to finish)")
+    lines = []
+    
+    while True:
+        try:
+            line = input()
+            lines.append(line)
+            
+            # Check if we have at least 2 lines and the last 2 are empty
+            if len(lines) >= 2 and lines[-1] == "" and lines[-2] == "":
+                # Remove the two trailing empty lines used for termination
+                lines = lines[:-2]
+                break
+                
+        except EOFError:
+            break
+    
+    return '\n'.join(lines)
+
+
 def main() -> None:
     """Main function to run the chatbot."""
     # Check API keys
@@ -50,7 +82,8 @@ def main() -> None:
     
     try:
         chatbot = create_chatbot()
-        print("Chatbot ready! Type 'quit' to exit.\n")
+        print("Chatbot ready! Type 'quit' to exit.")
+        print("Press Enter twice to finish input.\n")
     except Exception as e:
         print(f"Error initializing chatbot: {e}")
         return
@@ -60,7 +93,7 @@ def main() -> None:
     
     while True:
         try:
-            user_input = input("You: ").strip()
+            user_input = get_multiline_input().strip()
             
             if user_input.lower() in ['quit', 'exit']:
                 print("Goodbye!")
@@ -69,11 +102,14 @@ def main() -> None:
             if not user_input:
                 continue
             
+            # Show that input is finished and bot is processing
+            print("Bot: (Working on it...)", end=" ", flush=True)
+            
             # Get response from chatbot
             result = chat_with_bot(chatbot, user_input, history)
             
             # Print response
-            print(f"Bot: {result['response']}")
+            print(result['response'])
             print(f"(Intent: {result['intent']})\n")
             
             # Update history
