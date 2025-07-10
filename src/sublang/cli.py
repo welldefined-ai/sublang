@@ -4,8 +4,8 @@
 import os
 from typing import List, Dict
 from dotenv import load_dotenv
-from config import config
-from src.chatbot import create_chatbot, chat_with_bot
+from .config import config
+from .chatbot import create_chatbot, chat_with_bot
 
 # Load environment variables
 load_dotenv()
@@ -103,7 +103,7 @@ def main() -> None:
                 continue
             
             # Show that input is finished and bot is processing
-            print("Bot: (Working on it...)", end=" ", flush=True)
+            print("Bot: (Working on it...)", flush=True)
             
             # Get response from chatbot
             result = chat_with_bot(chatbot, user_input, history)

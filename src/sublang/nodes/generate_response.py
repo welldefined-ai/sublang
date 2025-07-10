@@ -2,7 +2,7 @@
 
 from typing import Any, Dict
 import litellm
-from config import config
+from ..config import config
 from ..state import ChatState
 from ..prompt_loader import PromptLoader
 

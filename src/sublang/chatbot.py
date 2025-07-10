@@ -2,10 +2,11 @@
 
 from typing import Dict, List, Optional, Any
 import litellm
-from config import config
+from .config import config
 from langgraph.graph import StateGraph, START, END
 from .state import ChatState
-from .nodes import generate_response, design_specs
+from .nodes.generate_response import generate_response
+from .nodes.design_specs import design_specs
 from .prompt_loader import PromptLoader
 
 # Initialize prompt loader
