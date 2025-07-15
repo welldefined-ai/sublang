@@ -1,6 +1,5 @@
 """Prompt loader for managing chatbot prompts from text files."""
 
-import os
 from pathlib import Path
 from typing import Dict
 

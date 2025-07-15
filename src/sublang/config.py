@@ -1,6 +1,7 @@
 """Configuration for the SubLang chatbot."""
 
 import os
+import litellm
 from typing import Optional
 from dotenv import load_dotenv
 
@@ -26,6 +27,13 @@ class ModelConfig:
         # Provider-specific configurations
         self.azure_api_base: Optional[str] = os.getenv("AZURE_API_BASE")
         self.azure_api_version: Optional[str] = os.getenv("AZURE_API_VERSION")
+        
+        # Configure LiteLLM globally
+        self.configure_litellm()
+    
+    def configure_litellm(self) -> None:
+        """Configure LiteLLM settings globally."""
+        litellm.set_verbose = False  # Set to True for debugging
         
     def _get_int_env(self, key: str) -> Optional[int]:
         """Get integer environment variable."""

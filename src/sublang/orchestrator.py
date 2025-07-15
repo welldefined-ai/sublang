@@ -1,29 +1,29 @@
-"""Chatbot graph creation and interaction functions."""
+"""Main chatbot orchestrator using subgraphs."""
 
 from typing import Dict, List, Optional, Any
 import litellm
 from .config import config
 from langgraph.graph import StateGraph, START, END
 from .state import ChatState
-from .nodes.generate_response import generate_response
-from .nodes.design_specs import design_specs
+from .chatbot.chatbot import create_chatbot_subgraph, chat_with_bot as chatbot_chat
+from .design_specs.design_specs import create_design_specs_subgraph, process_design_request
 from .prompt_loader import PromptLoader
+from pathlib import Path
 
-# Initialize prompt loader
-prompt_loader = PromptLoader()
+# Initialize prompt loader for classification (using chatbot prompts)
+_chatbot_prompts_dir = Path(__file__).parent / "chatbot" / "prompts"
+prompt_loader = PromptLoader(str(_chatbot_prompts_dir))
 
-# Configure LiteLLM
-litellm.set_verbose = False  # Set to True for debugging
 
 
 def classify_and_route(state: ChatState) -> str:
-    """Classify intent and route to appropriate handler using LLM.
+    """Classify intent and route to appropriate subgraph using LLM.
     
     Args:
         state: Current chat state
         
     Returns:
-        Handler name to route to ("general" or "design")
+        Subgraph name to route to ("chatbot" or "design_specs")
     """
     message = state["message"]
     history = state.get("history", [])
@@ -72,39 +72,50 @@ This is the first message in the conversation. Is this about software design?"""
         
         # Parse the classification result and return route
         if "DESIGN_SPECS" in classification_result.upper():
-            return "design"
+            return "design_specs"
         else:
-            return "general"
+            return "chatbot"
     
     except Exception as e:
         print(f"Error in LLM classification: {e}")
-        # Fallback to general on error
-        return "general"
+        # Fallback to chatbot on error
+        return "chatbot"
 
 
 def create_chatbot():
-    """Create and compile the chatbot graph.
+    """Create and compile the main chatbot orchestrator.
     
     Returns:
-        Compiled LangGraph chatbot
+        Compiled LangGraph chatbot with subgraphs
     """
-    # Create the graph
+    # Create subgraphs
+    chatbot_subgraph = create_chatbot_subgraph()
+    design_specs_subgraph = create_design_specs_subgraph()
+    
+    # Store subgraphs for use in routing functions
+    def route_to_chatbot(state: ChatState) -> Dict[str, Any]:
+        return chatbot_chat(chatbot_subgraph, state["message"], state.get("history", []))
+    
+    def route_to_design_specs(state: ChatState) -> Dict[str, Any]:
+        return process_design_request(design_specs_subgraph, state["message"], state.get("history", []))
+    
+    # Create the main graph
     graph = StateGraph(ChatState)
     
-    # Add nodes (no classification node needed)
-    graph.add_node("generate_response", generate_response)
-    graph.add_node("design_specs", design_specs)
+    # Add subgraph nodes
+    graph.add_node("chatbot", route_to_chatbot)
+    graph.add_node("design_specs", route_to_design_specs)
     
-    # Add conditional edges directly from START
+    # Add conditional routing from START
     graph.add_conditional_edges(
         START,
         classify_and_route,
         {
-            "general": "generate_response",
-            "design": "design_specs"
+            "chatbot": "chatbot",
+            "design_specs": "design_specs"
         }
     )
-    graph.add_edge("generate_response", END)
+    graph.add_edge("chatbot", END)
     graph.add_edge("design_specs", END)
     
     # Compile the graph
@@ -116,10 +127,10 @@ def chat_with_bot(
     message: str, 
     history: Optional[List[Dict[str, str]]] = None
 ) -> Dict[str, Any]:
-    """Chat with the bot using a message.
+    """Chat with the bot using subgraphs.
     
     Args:
-        chatbot: Compiled chatbot graph
+        chatbot: Compiled chatbot orchestrator
         message: User message
         history: Optional conversation history
         

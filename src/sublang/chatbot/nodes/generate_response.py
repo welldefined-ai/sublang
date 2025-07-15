@@ -1,32 +1,31 @@
-"""Design specifications generation node for the LangGraph chatbot."""
+"""General response generation node for the LangGraph chatbot."""
 
 from typing import Any, Dict
 import litellm
-from ..config import config
-from ..state import ChatState
-from ..prompt_loader import PromptLoader
+from ...config import config
+from ...prompt_loader import PromptLoader
+from pathlib import Path
 
-# Initialize prompt loader
-prompt_loader = PromptLoader()
-
-# Configure LiteLLM
-litellm.set_verbose = False  # Set to True for debugging
+# Initialize prompt loader for chatbot subgraph
+_current_dir = Path(__file__).parent.parent
+prompt_loader = PromptLoader(str(_current_dir / "prompts"))
 
 
-def design_specs(state: ChatState) -> Dict[str, Any]:
-    """Generate software design specifications and architecture guidance.
+
+def generate_response(state) -> Dict[str, Any]:
+    """Generate general response for non-design queries.
     
     Args:
         state: Current chat state
         
     Returns:
-        Dictionary with generated design response and updated history
+        Dictionary with generated response and updated history
     """
     message = state["message"]
     history = state.get("history", [])
     
-    # Get the design specs prompt
-    system_prompt = prompt_loader.get_prompt("DESIGN_SPECS")
+    # Get the general prompt (includes README content automatically)
+    system_prompt = prompt_loader.get_prompt("GENERAL")
     
     try:
         # Create messages for the LLM
@@ -52,7 +51,7 @@ def design_specs(state: ChatState) -> Dict[str, Any]:
         
         return {
             "response": response_content,
-            "intent": "DESIGN_SPECS",
+            "intent": "GENERAL",
             "history": history + [
                 {"role": "user", "content": message},
                 {"role": "assistant", "content": response_content}
@@ -60,14 +59,14 @@ def design_specs(state: ChatState) -> Dict[str, Any]:
         }
     
     except Exception as e:
-        print(f"Error generating design specs: {e}")
+        print(f"Error generating response: {e}")
         error_msg = (
             "I apologize, but I encountered an error while processing "
-            "your design request. Please try again."
+            "your request. Please try again."
         )
         return {
             "response": error_msg,
-            "intent": "DESIGN_SPECS",
+            "intent": "GENERAL",
             "history": history + [
                 {"role": "user", "content": message},
                 {"role": "assistant", "content": "Error occurred"}
