@@ -1,48 +1,126 @@
-"""Chatbot subgraph with isolated state and functions."""
+"""Main chatbot controller with intent classification and subgraph routing."""
 
 from typing import Dict, List, Optional, Any
+import litellm
 from langgraph.graph import StateGraph, START, END
 from typing_extensions import TypedDict
+from ..config import config
+from ..prompt_loader import PromptLoader
+from ..design_specs.design_specs import create_design_specs_subgraph, process_design_request
 from .nodes.generate_response import generate_response
+from pathlib import Path
 
-# Isolated state for chatbot subgraph
+# Chatbot controller state
 class ChatbotState(TypedDict):
-    """State structure for the chatbot subgraph."""
+    """State structure for the main chatbot controller."""
     message: str
     history: List[Dict[str, str]]
     intent: str
     response: str
     context: Dict[str, str]
 
+# Initialize prompt loader for classification
+_current_dir = Path(__file__).parent
+_prompt_loader = PromptLoader(str(_current_dir / "prompts"))
 
-def classify_intent(state: ChatbotState) -> str:
-    """Classify intent for routing within chatbot subgraph.
+
+def classify_and_route(state: ChatbotState) -> str:
+    """Classify intent and route to appropriate handler using LLM.
     
     Args:
         state: Current chatbot state
         
     Returns:
-        Handler name to route to ("general")
+        Handler name to route to ("general" or "design_specs")
     """
-    # For now, chatbot subgraph only handles general responses
-    return "general"
+    message = state["message"]
+    history = state.get("history", [])
+    
+    # Get the classification prompt
+    system_prompt = _prompt_loader.get_prompt("CLASSIFY_INTENT")
+    
+    try:
+        # Prepare context for classification
+        if history:
+            # Get the last assistant response for context
+            last_assistant_response = None
+            for entry in reversed(history):
+                if entry.get("role") == "assistant":
+                    last_assistant_response = entry.get("content", "")
+                    break
+            
+            if last_assistant_response:
+                user_prompt = f"""Previous assistant response: {last_assistant_response}
+
+Current user message: {message}
+
+Based on the previous response and the new user message, is this conversation still about software design?"""
+            else:
+                user_prompt = f"""Current user message: {message}
+
+This is the first message in the conversation. Is this about software design?"""
+        else:
+            user_prompt = f"""Current user message: {message}
+
+This is the first message in the conversation. Is this about software design?"""
+        
+        # Create messages for the LLM
+        messages = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt}
+        ]
+        
+        # Generate classification using LiteLLM
+        response = litellm.completion(
+            messages=messages,
+            **config.get_model_params()
+        )
+        
+        classification_result = response.choices[0].message.content.strip()
+        
+        # Parse the classification result and return route
+        if "DESIGN_SPECS" in classification_result.upper():
+            return "design_specs"
+        else:
+            return "general"
+    
+    except Exception as e:
+        print(f"Error in LLM classification: {e}")
+        # Fallback to general on error
+        return "general"
 
 
-def create_chatbot_subgraph():
-    """Create and compile the chatbot subgraph.
+def create_chatbot():
+    """Create and compile the main chatbot with subgraph routing.
     
     Returns:
-        Compiled LangGraph chatbot subgraph
+        Compiled LangGraph chatbot
     """
-    # Create the graph
+    # Create design specs subgraph
+    design_specs_subgraph = create_design_specs_subgraph()
+    
+    # Create routing function for design specs
+    def route_to_design_specs(state: ChatbotState) -> Dict[str, Any]:
+        return process_design_request(design_specs_subgraph, state["message"], state.get("history", []))
+    
+    # Create the main graph
     graph = StateGraph(ChatbotState)
     
     # Add nodes
     graph.add_node("generate_response", generate_response)
+    graph.add_node("design_specs", route_to_design_specs)
     
-    # Add edges
-    graph.add_edge(START, "generate_response")
+    # Add conditional routing from START
+    graph.add_conditional_edges(
+        START,
+        classify_and_route,
+        {
+            "general": "generate_response",
+            "design_specs": "design_specs"
+        }
+    )
     graph.add_edge("generate_response", END)
+    graph.add_edge("design_specs", END)
     
     # Compile the graph
     return graph.compile()
@@ -53,10 +131,10 @@ def chat_with_bot(
     message: str, 
     history: Optional[List[Dict[str, str]]] = None
 ) -> Dict[str, Any]:
-    """Chat with the chatbot subgraph.
+    """Chat with the main chatbot.
     
     Args:
-        chatbot: Compiled chatbot subgraph
+        chatbot: Compiled chatbot
         message: User message
         history: Optional conversation history
         
