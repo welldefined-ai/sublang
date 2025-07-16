@@ -4,8 +4,7 @@ from typing import Dict, List, Optional, Any
 import litellm
 from langgraph.graph import StateGraph, START, END
 from typing_extensions import TypedDict
-from ..config import config
-from ..prompt_loader import PromptLoader
+from ..utils import config, PromptLoader
 from ..design_specs.design_specs import create_design_specs_subgraph, process_design_request
 from .nodes.generate_response import generate_response
 from pathlib import Path

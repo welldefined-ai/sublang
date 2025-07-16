@@ -1,4 +1,4 @@
-"""Configuration for the SubLang chatbot."""
+"""Model configuration for the SubLang chatbot."""
 
 import os
 import litellm

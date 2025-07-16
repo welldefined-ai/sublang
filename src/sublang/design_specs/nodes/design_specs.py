@@ -2,8 +2,7 @@
 
 from typing import Any, Dict
 import litellm
-from ...config import config
-from ...prompt_loader import PromptLoader
+from ...utils import config, PromptLoader
 from pathlib import Path
 
 # Initialize prompt loader for design_specs subgraph
