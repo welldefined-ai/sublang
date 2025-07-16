@@ -2,12 +2,11 @@
 
 from typing import Any, Dict
 import litellm
-from ...utils import config, PromptLoader
 from pathlib import Path
+from sublang.utils import config, PromptLoader
 
 # Initialize prompt loader for design_specs subgraph
-_current_dir = Path(__file__).parent.parent
-prompt_loader = PromptLoader(str(_current_dir / "prompts"))
+prompt_loader = PromptLoader(str(Path(__file__).parent.parent / "prompts"))
 
 
 

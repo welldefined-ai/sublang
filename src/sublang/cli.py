@@ -4,8 +4,8 @@
 import os
 from typing import List, Dict
 from dotenv import load_dotenv
-from .utils import config
-from .chatbot.chatbot import create_chatbot, chat_with_bot
+from sublang.utils import config
+from sublang.chatbot import create_chatbot, chat_with_bot
 
 # Load environment variables
 load_dotenv()

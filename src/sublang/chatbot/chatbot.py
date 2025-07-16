@@ -4,10 +4,13 @@ from typing import Dict, List, Optional, Any
 import litellm
 from langgraph.graph import StateGraph, START, END
 from typing_extensions import TypedDict
-from ..utils import config, PromptLoader
-from ..design_specs.design_specs import create_design_specs_subgraph, process_design_request
-from .nodes.generate_response import generate_response
 from pathlib import Path
+from sublang.utils import config, PromptLoader
+from sublang.design_specs import create_design_specs_subgraph, process_design_request
+from sublang.chatbot.nodes.generate_response import generate_response
+
+# Initialize prompt loader for chatbot subgraph
+prompt_loader = PromptLoader(str(Path(__file__).parent / "prompts"))
 
 # Chatbot controller state
 class ChatbotState(TypedDict):
@@ -17,10 +20,6 @@ class ChatbotState(TypedDict):
     intent: str
     response: str
     context: Dict[str, str]
-
-# Initialize prompt loader for classification
-_current_dir = Path(__file__).parent
-_prompt_loader = PromptLoader(str(_current_dir / "prompts"))
 
 
 def classify_and_route(state: ChatbotState) -> str:
@@ -36,7 +35,7 @@ def classify_and_route(state: ChatbotState) -> str:
     history = state.get("history", [])
     
     # Get the classification prompt
-    system_prompt = _prompt_loader.get_prompt("CLASSIFY_INTENT")
+    system_prompt = prompt_loader.get_prompt("CLASSIFY_INTENT")
     
     try:
         # Prepare context for classification
