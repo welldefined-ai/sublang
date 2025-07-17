@@ -6,7 +6,7 @@ from langgraph.graph import StateGraph, START, END
 from typing_extensions import TypedDict
 from pathlib import Path
 from sublang.utils import config, PromptLoader
-from sublang.design_specs import create_design_specs_subgraph, process_design_request
+import sublang.design_specs as design_specs
 from sublang.chatbot.nodes.generate_response import generate_response
 
 # Initialize prompt loader for chatbot subgraph
@@ -88,18 +88,18 @@ This is the first message in the conversation. Is this about software design?"""
         return "general"
 
 
-def create_chatbot():
+def create():
     """Create and compile the main chatbot with subgraph routing.
     
     Returns:
         Compiled LangGraph chatbot
     """
     # Create design specs subgraph
-    design_specs_subgraph = create_design_specs_subgraph()
+    design_specs_subgraph = design_specs.create()
     
     # Create routing function for design specs
     def route_to_design_specs(state: ChatbotState) -> Dict[str, Any]:
-        return process_design_request(design_specs_subgraph, state["message"], state.get("history", []))
+        return design_specs.process(design_specs_subgraph, state["message"], state.get("history", []))
     
     # Create the main graph
     graph = StateGraph(ChatbotState)
@@ -124,12 +124,12 @@ def create_chatbot():
     return graph.compile()
 
 
-def chat_with_bot(
+def process(
     chatbot, 
     message: str, 
     history: Optional[List[Dict[str, str]]] = None
 ) -> Dict[str, Any]:
-    """Chat with the main chatbot.
+    """Process request with the main chatbot.
     
     Args:
         chatbot: Compiled chatbot

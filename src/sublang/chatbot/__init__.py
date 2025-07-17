@@ -1,5 +1,5 @@
 """Chatbot subgraph."""
 
-from .chatbot import create_chatbot, chat_with_bot, ChatbotState
+from .chatbot import create, process, ChatbotState
 
-__all__ = ["create_chatbot", "chat_with_bot", "ChatbotState"]
+__all__ = ["create", "process", "ChatbotState"]

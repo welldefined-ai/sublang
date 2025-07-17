@@ -5,7 +5,7 @@ import os
 from typing import List, Dict
 from dotenv import load_dotenv
 from sublang.utils import config
-from sublang.chatbot import create_chatbot, chat_with_bot
+from sublang.chatbot import create, process
 
 # Load environment variables
 load_dotenv()
@@ -81,7 +81,7 @@ def main() -> None:
     print(f"Using model: {config.model}")
     
     try:
-        chatbot = create_chatbot()
+        chatbot = create()
         print("Chatbot ready! Type 'quit' to exit.")
         print("Press Enter twice to finish input.\n")
     except Exception as e:
@@ -106,7 +106,7 @@ def main() -> None:
             print("Bot: (Working on it...)", flush=True)
             
             # Get response from chatbot
-            result = chat_with_bot(chatbot, user_input, history)
+            result = process(chatbot, user_input, history)
             
             # Print response
             print(result['response'])

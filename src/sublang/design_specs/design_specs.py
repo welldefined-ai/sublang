@@ -15,7 +15,7 @@ class DesignSpecsState(TypedDict):
     context: Dict[str, str]
 
 
-def create_design_specs_subgraph():
+def create():
     """Create and compile the design_specs subgraph.
     
     Returns:
@@ -35,12 +35,12 @@ def create_design_specs_subgraph():
     return graph.compile()
 
 
-def process_design_request(
+def process(
     design_graph, 
     message: str, 
     history: Optional[List[Dict[str, str]]] = None
 ) -> Dict[str, Any]:
-    """Process design request with the design_specs subgraph.
+    """Process request with the design_specs subgraph.
     
     Args:
         design_graph: Compiled design_specs subgraph
