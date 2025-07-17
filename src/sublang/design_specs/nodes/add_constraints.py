@@ -1,4 +1,4 @@
-"""Design specifications generation node for the LangGraph chatbot."""
+"""Add constraints to design specifications based on terms and features."""
 
 from typing import Any, Dict
 import litellm
@@ -9,35 +9,30 @@ from sublang.utils import config, PromptLoader
 prompt_loader = PromptLoader(str(Path(__file__).parent.parent / "prompts"))
 
 
-
-def design_specs(state) -> Dict[str, Any]:
-    """Generate software design specifications and architecture guidance.
+def add_constraints(state) -> Dict[str, Any]:
+    """Add constraints based on terms and features, adjusting them if necessary.
     
     Args:
         state: Current chat state
         
     Returns:
-        Dictionary with generated design response and updated history
+        Dictionary with complete design response including constraints
     """
     message = state["message"]
+    terms = state.get("terms", "")
+    features = state.get("features", "")
     history = state.get("history", [])
     
-    # Get the design specs prompt
-    system_prompt = prompt_loader.get_prompt("DESIGN_SPECS")
+    # Get the constraints addition prompt
+    system_prompt = prompt_loader.get_prompt("ADD_CONSTRAINTS")
     
     try:
-        # Create messages for the LLM
+        # Create messages for the LLM - no history needed for internal processing
+        user_message = f"Original description: {message}\n\nTerms:\n{terms}\n\nFeatures:\n{features}"
         messages = [
             {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_message}
         ]
-        
-        # Add conversation history (last 4 messages = 2 rounds of talk)
-        if history:
-            for entry in history[-4:]:  # Keep last 4 messages for context
-                messages.append(entry)
-        
-        # Add current user message
-        messages.append({"role": "user", "content": message})
         
         # Generate response using LiteLLM
         response = litellm.completion(
@@ -50,6 +45,7 @@ def design_specs(state) -> Dict[str, Any]:
         return {
             "response": response_content,
             "intent": "DESIGN_SPECS",
+            # Only the final step adds to history - the complete conversation
             "history": history + [
                 {"role": "user", "content": message},
                 {"role": "assistant", "content": response_content}
@@ -57,16 +53,17 @@ def design_specs(state) -> Dict[str, Any]:
         }
     
     except Exception as e:
-        print(f"Error generating design specs: {e}")
+        print(f"Error adding constraints: {e}")
         error_msg = (
-            "I apologize, but I encountered an error while processing "
-            "your design request. Please try again."
+            "I apologize, but I encountered an error while adding "
+            "constraints to your design. Please try again."
         )
         return {
             "response": error_msg,
             "intent": "DESIGN_SPECS",
+            # Only the final step adds to history - even for errors
             "history": history + [
                 {"role": "user", "content": message},
-                {"role": "assistant", "content": "Error occurred"}
+                {"role": "assistant", "content": error_msg}
             ]
         }

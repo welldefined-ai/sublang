@@ -3,7 +3,9 @@
 from typing import Dict, List, Optional, Any
 from langgraph.graph import StateGraph, START, END
 from typing_extensions import TypedDict
-from .nodes.design_specs import design_specs
+from .nodes.extract_terms import extract_terms
+from .nodes.add_features import add_features
+from .nodes.add_constraints import add_constraints
 
 # Isolated state for design_specs subgraph
 class DesignSpecsState(TypedDict):
@@ -13,6 +15,8 @@ class DesignSpecsState(TypedDict):
     intent: str
     response: str
     context: Dict[str, str]
+    terms: str
+    features: str
 
 
 def create():
@@ -25,11 +29,15 @@ def create():
     graph = StateGraph(DesignSpecsState)
     
     # Add nodes
-    graph.add_node("design_specs", design_specs)
+    graph.add_node("extract_terms", extract_terms)
+    graph.add_node("add_features", add_features)
+    graph.add_node("add_constraints", add_constraints)
     
     # Add edges
-    graph.add_edge(START, "design_specs")
-    graph.add_edge("design_specs", END)
+    graph.add_edge(START, "extract_terms")
+    graph.add_edge("extract_terms", "add_features")
+    graph.add_edge("add_features", "add_constraints")
+    graph.add_edge("add_constraints", END)
     
     # Compile the graph
     return graph.compile()
@@ -58,7 +66,9 @@ def process(
         "history": history,
         "intent": "DESIGN_SPECS",
         "response": "",
-        "context": {}
+        "context": {},
+        "terms": "",
+        "features": ""
     }
     
     result = design_graph.invoke(initial_state)
