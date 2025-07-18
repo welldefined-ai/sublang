@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """SubLang Chatbot - LangGraph-based chatbot with predefined prompts."""
 
-import os
 from typing import List, Dict
 from dotenv import load_dotenv
 from sublang.utils import config

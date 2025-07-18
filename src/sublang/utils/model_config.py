@@ -32,9 +32,21 @@ class ModelConfig:
         # Configure LiteLLM globally
         self.configure_litellm()
     
-    def configure_litellm(self) -> None:
+    @staticmethod
+    def configure_litellm() -> None:
         """Configure LiteLLM settings globally."""
         litellm.set_verbose = False  # Set to True for debugging
+
+        # Setup LangSmith tracing if enabled
+        if (os.getenv("LANGSMITH_TRACING", "false").lower() == "true" and
+            os.getenv("LANGSMITH_API_KEY") and
+            os.getenv("LANGSMITH_PROJECT")):
+            try:
+                litellm.callbacks = ["langsmith"]
+                litellm.langsmith_batch_size = 1
+                print("LangSmith tracing enabled for LiteLLM")
+            except Exception as e:
+                print(f"Warning: Failed to enable LangSmith tracing: {e}")
 
     def get_model_params(self) -> dict:
         """Get model parameters for LiteLLM."""
