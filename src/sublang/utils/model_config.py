@@ -15,7 +15,8 @@ class ModelConfig:
         # Default model configuration
         self.model: str = os.getenv("MODEL", "gpt-4o-mini")
         self.temperature: float = float(os.getenv("TEMPERATURE", "0.7"))
-        self.max_tokens: Optional[int] = self._get_int_env("MAX_TOKENS")
+        max_tokens_env = os.getenv("MAX_TOKENS")
+        self.max_tokens: Optional[int] = int(max_tokens_env) if max_tokens_env else None
         
         # API keys (automatically detected by LiteLLM)
         self.openai_api_key: Optional[str] = os.getenv("OPENAI_API_KEY")
@@ -34,12 +35,7 @@ class ModelConfig:
     def configure_litellm(self) -> None:
         """Configure LiteLLM settings globally."""
         litellm.set_verbose = False  # Set to True for debugging
-        
-    def _get_int_env(self, key: str) -> Optional[int]:
-        """Get integer environment variable."""
-        value = os.getenv(key)
-        return int(value) if value else None
-    
+
     def get_model_params(self) -> dict:
         """Get model parameters for LiteLLM."""
         params = {
