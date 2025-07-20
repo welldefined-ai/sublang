@@ -37,16 +37,17 @@ class ModelConfig:
         """Configure LiteLLM settings globally."""
         litellm.set_verbose = False  # Set to True for debugging
 
-        # Setup LangSmith tracing if enabled
-        if (os.getenv("LANGSMITH_TRACING", "false").lower() == "true" and
-            os.getenv("LANGSMITH_API_KEY") and
-            os.getenv("LANGSMITH_PROJECT")):
+        # Setup LangFuse tracing if enabled
+        if (os.getenv("LANGFUSE_TRACING", "false").lower() == "true" and
+            os.getenv("LANGFUSE_PUBLIC_KEY") and
+            os.getenv("LANGFUSE_SECRET_KEY")):
             try:
-                litellm.callbacks = ["langsmith"]
-                litellm.langsmith_batch_size = 1
-                print("LangSmith tracing enabled for LiteLLM")
+                # Set both success and failure callbacks as recommended by LiteLLM docs
+                litellm.success_callback = ["langfuse"]
+                litellm.failure_callback = ["langfuse"]
+                print("LangFuse tracing enabled for LiteLLM")
             except Exception as e:
-                print(f"Warning: Failed to enable LangSmith tracing: {e}")
+                print(f"Warning: Failed to enable LangFuse tracing: {e}")
 
     def get_model_params(self) -> dict:
         """Get model parameters for LiteLLM."""
@@ -59,6 +60,28 @@ class ModelConfig:
             params["max_tokens"] = self.max_tokens
             
         return params
+
+
+def get_langfuse_config():
+    """Get LangFuse configuration for LangGraph if tracing is enabled."""
+    if (os.getenv("LANGFUSE_TRACING", "false").lower() == "true" and
+        os.getenv("LANGFUSE_PUBLIC_KEY") and
+        os.getenv("LANGFUSE_SECRET_KEY")):
+        try:
+            from langfuse.callback import CallbackHandler
+            langfuse_handler = CallbackHandler(
+                public_key=os.getenv("LANGFUSE_PUBLIC_KEY"),
+                secret_key=os.getenv("LANGFUSE_SECRET_KEY"),
+                host=os.getenv("LANGFUSE_HOST", "https://cloud.langfuse.com")
+            )
+            return {"callbacks": [langfuse_handler]}
+        except ImportError:
+            print("Warning: LangFuse not installed. Install with: pip install langfuse")
+            return {}
+        except Exception as e:
+            print(f"Warning: Failed to setup LangFuse for LangGraph: {e}")
+            return {}
+    return {}
 
 
 # Global config instance

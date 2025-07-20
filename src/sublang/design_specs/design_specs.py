@@ -6,6 +6,7 @@ from typing_extensions import TypedDict
 from .nodes.extract_terms import extract_terms
 from .nodes.add_features import add_features
 from .nodes.add_constraints import add_constraints
+from sublang.utils.model_config import get_langfuse_config
 
 # Isolated state for design_specs subgraph
 class DesignSpecsState(TypedDict):
@@ -71,5 +72,7 @@ def process(
         "features": ""
     }
     
-    result = design_graph.invoke(initial_state)
+    # Get LangFuse config for tracing
+    langfuse_config = get_langfuse_config()
+    result = design_graph.invoke(initial_state, config=langfuse_config)
     return result

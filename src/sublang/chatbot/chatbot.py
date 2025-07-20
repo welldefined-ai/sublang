@@ -6,6 +6,7 @@ from langgraph.graph import StateGraph, START, END
 from typing_extensions import TypedDict
 from pathlib import Path
 from sublang.utils import config, PromptLoader
+from sublang.utils.model_config import get_langfuse_config
 import sublang.design_specs as design_specs
 from sublang.chatbot.nodes.generate_response import generate_response
 
@@ -150,5 +151,7 @@ def process(
         "context": {}
     }
     
-    result = chatbot.invoke(initial_state)
+    # Get LangFuse config for tracing
+    langfuse_config = get_langfuse_config()
+    result = chatbot.invoke(initial_state, config=langfuse_config)
     return result
