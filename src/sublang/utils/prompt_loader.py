@@ -18,7 +18,7 @@ class PromptLoader:
         self.load_prompts()
     
     def load_prompts(self) -> None:
-        """Load all .txt files from the prompts directory.
+        """Load all .md files from the prompts directory.
         
         Raises:
             FileNotFoundError: If prompts directory doesn't exist
@@ -28,7 +28,7 @@ class PromptLoader:
                 f"Prompts directory '{self.prompts_dir}' not found"
             )
         
-        for prompt_file in self.prompts_dir.glob("*.txt"):
+        for prompt_file in self.prompts_dir.glob("*.md"):
             prompt_name = prompt_file.stem.upper()
             with open(prompt_file, 'r', encoding='utf-8') as f:
                 self.prompts[prompt_name] = f.read().strip()
@@ -82,4 +82,4 @@ The following is information about this project. Use this as context when users 
 
 # Note: Intent classification is now handled by LLM instead of keywords
 # The INTENT_KEYWORDS dictionary has been removed as classification is now 
-# performed by the LLM using the classify_intent.txt prompt
+# performed by the LLM using the classify_intent.md prompt
