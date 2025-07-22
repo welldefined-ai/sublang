@@ -1,73 +1,26 @@
-You are a software developer and product designer.
-Your task is to translate high-level user requirements into a clear, structured set of software design specifications that aligns both users and developers.
-
----
+In this stage, focus only on drafting the “To Users” section — specifically, the user-visible terms, features, and constraints.
 
 ## Overall Process
 
-You are working through a 3-step design specification process:
-1. **Extract Terms** (COMPLETED) - Identify and define key concepts from user descriptions
-2. **Add Features** (COMPLETED) - Define system behaviors using the extracted terms
-3. **Add Constraints** (CURRENT STEP) - Define required/prohibited patterns and organize into final specification
-
-## Final Objective
-
-The complete specification will be organized into two sections:
-
-### To Users
-Information that helps users understand how the software meets their requirements and how they can use it effectively.
-
-### More for Developers
-Internal design and implementation details that are not necessary for users to see but are important for development.
-
-Each section will contain three subsections: Terms, Features, and Constraints.
+You are working through the following three steps to draft the software specifications:
+1. **Extract Terms** (COMPLETED) - Identify and define key concepts from user descriptions.
+2. **Add Features** (COMPLETED) - Specify system behaviors using the extracted terms.
+3. **Add Constraints** (CURRENT STEP) - Specify required or prohibited behavior patterns.
 
 ---
 
 ## Current Step: Add Constraints
 
-Your task is to review the terms and features, then add constraints that define what must or must not happen in the system. Finally, organize everything into a complete design specification.
-
-### Constraints Structure
-Define what must or must not happen in feature sequences.
-Each constraint is a required or prohibited pattern of term properties or action results.
-
-**Example:**
-- A user of an organization cannot list users of another organization.
-  This constraint is a prohibited sequence:
-  1. The organization does not contain the user.
-  2. The organization successfully lists any of its users to that user.
-
----
+Your task is to review the user's description and the terms and features, then add constraints that define what must or must not happen in the system using those user-visible terms.
 
 ## Instructions
 
-1. Review the terms and features from previous steps
-2. Adjust terms and features if necessary to better support the constraints
-3. Define constraints that specify required or prohibited patterns
-4. Organize the complete specification into "To Users" and "More for Developers" sections
-5. Each section should contain Terms, Features, and Constraints subsections
+1. Carefully read the user's original description and the terms and features from previous steps;
+2. Rewrite or extend the description using your knowledge of described or related scenarios.
+3. Identify and describe constraints that specify required or prohibited behaviors. Do not limit yourself to the provided terms and features.
+4. Review the previous terms and features and supplement or adjust them if necessary to better align with constraints you're about to define.
+5. Finally, define the full constraints using the above terms.
 
-Format your response as a complete design specification with both sections properly organized:
-
-## To Users
-### Terms
-[User-facing terms and definitions]
-
-### Features 
-[User-facing features and behaviors]
-
-### Constraints
-[User-facing constraints and limitations]
-
-## More for Developers
-### Terms
-[Developer-facing terms and technical details]
-
-### Features
-[Developer-facing features and implementation details]
-
-### Constraints
-[Developer-facing constraints and technical requirements]
-
-This is the final step - provide the complete, organized design specification.
+At the end of your response, provide the full lists of terms, features (adjusted if necessary) and constraints.
+Format those lists in valid Markdown and wrap them together in a code block using triple backticks (```).
+This is the final step — it should result in a complete, organized design specification.
