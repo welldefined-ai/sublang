@@ -22,24 +22,24 @@ class DesignSpecsState(TypedDict):
 
 def create():
     """Create and compile the design_specs subgraph.
-    
+
     Returns:
         Compiled LangGraph design_specs subgraph
     """
     # Create the graph
     graph = StateGraph(DesignSpecsState)
-    
+
     # Add nodes
     graph.add_node("extract_terms", extract_terms)
     graph.add_node("add_features", add_features)
     graph.add_node("add_constraints", add_constraints)
-    
+
     # Add edges
     graph.add_edge(START, "extract_terms")
     graph.add_edge("extract_terms", "add_features")
     graph.add_edge("add_features", "add_constraints")
     graph.add_edge("add_constraints", END)
-    
+
     # Compile the graph
     return graph.compile()
 
@@ -50,18 +50,18 @@ def process(
     history: Optional[List[Dict[str, str]]] = None
 ) -> Dict[str, Any]:
     """Process request with the design_specs subgraph.
-    
+
     Args:
         design_graph: Compiled design_specs subgraph
         message: User message
         history: Optional conversation history
-        
+
     Returns:
         Dictionary with design response and updated history
     """
     if history is None:
         history = []
-    
+
     initial_state = {
         "message": message,
         "history": history,
@@ -71,7 +71,7 @@ def process(
         "terms": "",
         "features": ""
     }
-    
+
     # Get LangFuse config for tracing
     langfuse_config = get_langfuse_config()
     result = design_graph.invoke(initial_state, config=langfuse_config)
