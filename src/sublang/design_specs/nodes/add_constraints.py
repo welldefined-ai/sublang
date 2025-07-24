@@ -31,7 +31,8 @@ def add_constraints(state) -> Dict[str, Any]:
 
     try:
         # Create messages for the LLM - no history needed for internal processing
-        user_message = f"Original description: {message}\n\nTerms:\n{terms}\n\nFeatures:\n{features}"
+        # Note: features already contains terms from the previous step, so we don't need to pass terms separately
+        user_message = f"Original description:\n{message}\n\n---\n\nTerms and Features from previous steps:\n{features}"
         messages = [
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_message}

@@ -30,7 +30,7 @@ def add_features(state) -> Dict[str, Any]:
 
     try:
         # Create messages for the LLM - no history needed for internal processing
-        user_message = f"Original description: {message}\n\nPreviously extracted terms:\n{terms}"
+        user_message = f"Original description:\n{message}\n\n---\n\nPreviously extracted terms:\n{terms}"
         messages = [
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_message}
