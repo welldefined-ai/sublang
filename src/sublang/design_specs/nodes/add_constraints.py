@@ -20,8 +20,7 @@ def add_constraints(state) -> Dict[str, Any]:
         Dictionary with complete design response including constraints
     """
     message = state["message"]
-    terms = state.get("terms", "")
-    features = state.get("features", "")
+    specs = state.get("specs", "")  # Contains terms and features from previous steps
     history = state.get("history", [])
 
     # Get the overall prompt and constraints addition prompt
@@ -31,8 +30,8 @@ def add_constraints(state) -> Dict[str, Any]:
 
     try:
         # Create messages for the LLM - no history needed for internal processing
-        # Note: features already contains terms from the previous step, so we don't need to pass terms separately
-        user_message = f"Original description:\n{message}\n\n---\n\nTerms and Features from previous steps:\n{features}"
+        # Note: specs already contains terms and features from previous steps
+        user_message = f"Original description:\n{message}\n\n---\n\nTerms and Features from previous steps:\n{specs}"
         messages = [
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_message}

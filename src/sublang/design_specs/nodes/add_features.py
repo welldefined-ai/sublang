@@ -20,7 +20,7 @@ def add_features(state) -> Dict[str, Any]:
         Dictionary with features and potentially adjusted terms
     """
     message = state["message"]
-    terms = state.get("terms", "")
+    specs = state.get("specs", "")  # Contains terms from previous step
     history = state.get("history", [])
 
     # Get the overall prompt and features addition prompt
@@ -30,7 +30,7 @@ def add_features(state) -> Dict[str, Any]:
 
     try:
         # Create messages for the LLM - no history needed for internal processing
-        user_message = f"Original description:\n{message}\n\n---\n\nPreviously extracted terms:\n{terms}"
+        user_message = f"Original description:\n{message}\n\n---\n\nPreviously extracted terms:\n{specs}"
         messages = [
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_message}
@@ -51,7 +51,7 @@ def add_features(state) -> Dict[str, Any]:
         features_output = parsed_features if parsed_features else response_content
 
         return {
-            "features": features_output,
+            "specs": features_output,  # Now contains both terms and features
             "intent": "DESIGN_SPECS",
             "history": history  # Don't add to history - this is internal processing
         }
@@ -63,7 +63,7 @@ def add_features(state) -> Dict[str, Any]:
             "features to your design. Please try again."
         )
         return {
-            "features": error_msg,
+            "specs": error_msg,
             "intent": "DESIGN_SPECS",
             "history": history  # Don't add to history - this is internal processing
         }

@@ -16,8 +16,7 @@ class DesignSpecsState(TypedDict):
     intent: str
     response: str
     context: Dict[str, str]
-    terms: str
-    features: str
+    specs: str  # Evolving specification: terms -> terms+features -> terms+features+constraints
 
 
 def create():
@@ -68,8 +67,7 @@ def process(
         "intent": "DESIGN_SPECS",
         "response": "",
         "context": {},
-        "terms": "",
-        "features": ""
+        "specs": ""
     }
 
     # Get LangFuse config for tracing

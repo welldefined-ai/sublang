@@ -57,7 +57,7 @@ def extract_terms(state) -> Dict[str, Any]:
         terms_output = parsed_terms if parsed_terms else response_content
 
         return {
-            "terms": terms_output,
+            "specs": terms_output,
             "intent": "DESIGN_SPECS",
             "history": history  # Don't add to history - this is internal processing
         }
@@ -69,7 +69,7 @@ def extract_terms(state) -> Dict[str, Any]:
             "terms from your description. Please try again."
         )
         return {
-            "terms": error_msg,
+            "specs": error_msg,
             "intent": "DESIGN_SPECS",
             "history": history  # Don't add to history - this is internal processing
         }
